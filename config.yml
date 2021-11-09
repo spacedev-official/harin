@@ -1,0 +1,6 @@
+# embed colors
+colors:
+  general: 0x4374D9
+  error: 0xCC3D3D
+  help: 0x47C83E
+
