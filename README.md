@@ -1,37 +1,27 @@
-# harin-bot
- harin discord bot
+<h1 align="center">harin-bot</h1>
+<p align="center">
+    <a href="https://koreanbots.dev/bots/893841721958469703" target="_blank"><img src="https://koreanbots.dev/api/widget/bots/status/893841721958469703.svg?scale=1.0"></a>
+    <a href="https://koreanbots.dev/bots/893841721958469703" target="_blank"><img src="https://koreanbots.dev/api/widget/bots/servers/893841721958469703.svg?scale=1.0"></a>
+    <a href="https://koreanbots.dev/bots/893841721958469703/vote" target="_blank"><img src="https://koreanbots.dev/api/widget/bots/votes/893841721958469703.svg?scale=1.0"></a>
+</p>
+<h3 align="center">many feature discord bot with <a href="https://github.com/Pycord-Development/pycord">py-cord</a><img src="https://avatars.githubusercontent.com/u/89700626" width="20" height="20"></h3>
 
-![배너](https://media.discordapp.net/attachments/889514827905630290/896359450544308244/37cae031dc5a6c40.png)
-
-# 오픈소스 사용법
-
-**AGPL-3.0 | 끝봇 오픈소스 사용에 따른 명시**
-- 사용자의 요청시 소스코드를 제공할 의무가 있습니다.
-- 어떤 목적으로, 어떤 형태로든 사용할 수 있지만 사용하거나 변경된 프로그램을 배포하는 경우 무조건 동일한 라이선스 즉, AGPL로 공개해야 합니다.
-
-본 오픈소스 프로젝트를 사용하시려면 아래의 규칙을 따라주세요.
-- 봇 또는 레포지토리에 본 오픈소스를 사용했다는 사실을 명시
-
+<p align="center">
+  <b>Some Links</b><br>
+  <a href="https://koreanbots.dev/bots/893841721958469703">KoreanBots</a> |
+    <a href="https://discord.gg/Jk6VRvsnqa">Official support server</a> |
+  <a href="https://koreanbots.dev/bots/893841721958469703/vote">Vote</a>
+  <br><br>
+  <img src="https://media.discordapp.net/attachments/889514827905630290/896359450544308244/37cae031dc5a6c40.png">
+</p>
 
 # 봇이름
-하린
+- 하린
 
 ## ✏️ 소개
 
 유저 친화적인 다기능봇. 하린봇입니다.
 
-[서포트서버](https://discord.gg/Jk6VRvsnqa)
-
-[하린봇 소스](https://github.com/SpaceDEVofficial/harin-bot)
-
-- [사용된 끝말잇기 소스](https://github.com/janu8ry/kkutbot) - 끝봇
-
-- [사용된 마피아 소스](https://github.com/frin0911/Mafia-Bot)
-```
-+ 끝말잇기 게임 추가 (2021.10.14)
-
-+ 마피아 게임 추가 (2021.10.17)
-```
 
 ## 🛠️ 기능
 
@@ -39,8 +29,9 @@
 - 도구
 - 뮤직
 - 생일
-- 템플릿(조만간 패치예정)
+- 템플릿
 - 레벨링
+- ✨이보다 더 많은 기능!
 
 ## 상세
 
