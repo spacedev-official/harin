@@ -119,3 +119,4 @@ dmypy.json
 
 # sourcery config
 /.sourcery.yaml
+/cogs_unused
