@@ -1,4 +1,4 @@
-﻿aiohttp==3.7.4.post0
+﻿aiohttp==3.8.0
 aiomysql==0.0.21
 aiopg==1.3.2
 aiosqlite==0.17.0
