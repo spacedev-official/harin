@@ -14,7 +14,7 @@ click==8.0.3
 colorama==0.4.4
 discord-components==2.1.2
 discord.py==1.7.3
-discordSuperUtils==0.2.8
+discordSuperUtils==0.2.9
 idna==3.3
 import-expression==1.1.4
 jishaku==2.3.0
