@@ -8,6 +8,7 @@
 
 <p align="center">
   <b>Some Links</b><br>
+  <a href="CHANGELOG/README.md">Changelog</a> |  
   <a href="https://koreanbots.dev/bots/893841721958469703">KoreanBots</a> |
     <a href="https://discord.gg/Jk6VRvsnqa">Official support server</a> |
   <a href="https://koreanbots.dev/bots/893841721958469703/vote">Vote</a>
