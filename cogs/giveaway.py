@@ -163,7 +163,7 @@ class Giveaway(commands.Cog):
         if msg.author.id != self.bot.user.id:
             return await ctx.send("Invalid Message ID.")
         if "ended" in msg.content.lower():
-            return await ctx.send("That giveaway already ended. You can reroll using: `?reroll`")
+            return await ctx.send("That giveaway already ended. You can reroll using: `ㅎreroll`")
         em = msg.embeds[0]
         message = em.title
         gchannel = ctx.channel
