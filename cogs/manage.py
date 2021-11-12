@@ -204,7 +204,7 @@ class Manage(commands.Cog,discordSuperUtils.CogManager.Cog):
         await channel.send(embed=em)
         await ctx.message.add_reaction("✅")
 
-    async def checking_word(self,__input:str):
+    async def checking_word(self,__input:str) -> dict:
         start = time.time()
         word = __input
         self.detect.input = word
@@ -224,13 +224,12 @@ class Manage(commands.Cog,discordSuperUtils.CogManager.Cog):
     @commands.Cog.listener('on_message')
     async def detect_badword(self,message:discord.Message):
         if str(message.channel.topic).find("-HOnBdWld") != -1:
-            try:
-                await message.delete()
-            except:
-                pass
-            filtering = aioify(obj=self.checking_word)
-            res = await filtering(message.content)
+            res = await self.checking_word(message.content)
             if res['type']:
+                try:
+                    await message.delete()
+                except:
+                    pass
                 em = discord.Embed(
                     title="🚨    욕설감지!    🚨",
                     color=0xFFE400

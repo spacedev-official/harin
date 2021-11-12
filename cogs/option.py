@@ -111,7 +111,7 @@ class General(commands.Cog):
                                          options=[
                                              SelectOption(label="레벨링",
                                                           description="이 채널을 레벨링전용 채널로 설정해요.",
-                                                          value="-HNoLv", emoji="🏆"),
+                                                          value="-HOnLv", emoji="🏆"),
                                              SelectOption(label="환영인사", description="유저가 서버에 입장시 자동으로 인사하는 채널로 설정해요.",
                                                           value="wlc", emoji="👋"),
                                              SelectOption(label="초대추적",
