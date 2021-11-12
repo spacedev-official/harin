@@ -1,13 +1,18 @@
 import aiosqlite
 import discord
 import discordSuperUtils
+import time
 from PycordPaginator import Paginator
 from discord.ext import commands
-
+from modules.word_detection import word_detection
+from aioify import aioify
 
 class Manage(commands.Cog,discordSuperUtils.CogManager.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.detect = word_detection()
+        self.detect.load_data()
+        self.detect.load_badword_data()
         self.InfractionManager = discordSuperUtils.InfractionManager(bot)
         self.BanManager = discordSuperUtils.BanManager(bot)
         self.KickManager = discordSuperUtils.KickManager(bot)
@@ -199,7 +204,43 @@ class Manage(commands.Cog,discordSuperUtils.CogManager.Cog):
         await channel.send(embed=em)
         await ctx.message.add_reaction("✅")
 
-    @commands.group(name="출퇴", invoke_without_command=True)
+    async def checking_word(self,__input:str):
+        start = time.time()
+        word = __input
+        self.detect.input = word
+        self.detect.text_modification()
+        self.detect.lime_compare(self.detect.token_badwords, self.detect.token_detach_text[0])
+        result = self.detect.result
+        self.detect.lime_compare(self.detect.new_token_badwords, self.detect.token_detach_text[1], True)
+        result += self.detect.result
+        if len(result) == 0:
+            return {'type':False,'content':None,'time':None}
+        for j in result:
+            word = word[0:j[0]] + '-' * (j[1] - j[0] + 1) + word[j[1] + 1:]
+        end = time.time()
+        a = "`{:.2f}`초".format(end - start)
+        return {'type': True, 'content': word,'time':a}
+
+    @commands.Cog.listener('on_message')
+    async def detect_badword(self,message:discord.Message):
+        if str(message.channel.topic).find("-HOnBdWld") != -1:
+            try:
+                await message.delete()
+            except:
+                pass
+            filtering = aioify(obj=self.checking_word)
+            res = await filtering(message.content)
+            if res['type']:
+                em = discord.Embed(
+                    title="🚨    욕설감지!    🚨",
+                    color=0xFFE400
+                )
+                em.add_field(name='필터링된 채팅', value=res['content'])
+                em.add_field(name='보낸 사람', value=str(message.author))
+                em.add_field(name="판독 소요시간",value=res['time'])
+                await message.channel.send(embed=em)
+
+    """@commands.group(name="출퇴", invoke_without_command=True)
     async def chulgeun(self,ctx):
         await ctx.send("관리자의 출퇴근 상태를 알려주는 기능입니다.")
 
@@ -218,35 +259,9 @@ class Manage(commands.Cog,discordSuperUtils.CogManager.Cog):
         all_channel = await category.create_voice_channel(name="현재 출근한 관리자: 0명",
                                                           overwrites=overwrites)
         await db.execute("INSERT INTO chulgeun(guild, user, category, channel, yn, stime) VALUES (?, ?, ?, ?, ?,?)",
-                         ())
+                         ())"""
 
 
-    """@staticmethod
-    async def make_infraction_infoembed_and_send(ctx, infraction, member):
-        embed = discord.Embed(title=f"{member}님이 경고를 받으셨어요.", color=0x00FF00)
-
-        embed.add_field(name="사유", value=await infraction.reason(), inline=False)
-        embed.add_field(name="처리ID", value=infraction.id, inline=False)
-        embed.add_field(
-            name="처리 일시", value=str(await infraction.datetime()), inline=False
-        )
-        # Incase you don't like the Date of Infraction format you can change it using datetime.strftime
-
-        await ctx.send(embed=embed)
-
-
-    @staticmethod
-    async def make_infraction_embed_and_send(ctx, infraction, member):
-        embed = discord.Embed(title=f"{member}님이 경고를 받으셨어요.", color=0x00FF00)
-
-        embed.add_field(name="사유", value=await infraction.reason(), inline=False)
-        embed.add_field(name="처리ID", value=infraction.id, inline=False)
-        embed.add_field(
-            name="처리 일시", value=str(await infraction.datetime()), inline=False
-        )
-        # Incase you don't like the Date of Infraction format you can change it using datetime.strftime
-
-        await ctx.send(embed=embed)"""
 
 
 def setup(bot):

@@ -16,11 +16,12 @@ class General(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.option_dict = {
-            "-HNoLv": "레벨링 무시",
+            "-HOnLv": "레벨링",
             "wlc": "환영인사",
             "ivt": "초대추적",
             "-HOnNt": "공지수신",
-            "-HOnBtd": "생일알림"
+            "-HOnBtd": "생일알림",
+            "-HOnBdWld": "욕설감지"
             # "-HNoAts":"안티스팸 무시"
         }
         self.option_dict_db = {
@@ -62,51 +63,13 @@ class General(commands.Cog):
 
                 await ctx.send(embed=mal)
 
-    @commands.command(name="test")
-    async def test(self, ctx):
-        msg = await ctx.reply("뭐",
-                              components=[
-                                  Select(placeholder="옵션",
-                                         options=[
-                                             SelectOption(label="레벨링 무시",
-                                                          description="이 채널에 메세지로 경험치를 얻고 레벨업을 무시하는 모드입니다.",
-                                                          value="-HNoLv", emoji="🏆"),
-                                             SelectOption(label="환영인사", description="유저가 서버에 입장시 자동으로 인사하는 모드입니다.",
-                                                          value="wlc", emoji="👋"),
-                                             SelectOption(label="초대추적",
-                                                          description="유저가 서버에 입장시 누구의 초대로 서버에 들어왔는지 확인할 수 있는 모드입니다.",
-                                                          value="ivt", emoji="📈"),
-                                         ]),
-
-                              ],
-                              )
-
-        def check(res):
-            return ctx.author == res.user and res.channel == ctx.channel
-
-        try:
-            res = await self.bot.wait_for("select_option", check=check, timeout=60)
-            # user = res.values[0]
-            await ctx.send(res)
-        except asyncio.TimeoutError:
-            await msg.edit(embed=discord.Embed(
-                title="시간 초과로 취소되었습니다."
-            ))
-
     async def check_option(self, ctx):
         on_option = []
         topics = str(ctx.channel.topic).split(" ")
-        # values = ["-HNoAts", "-HNoLv"]
-        """if "-HNoAts" in topics:
-            on_option.append(self.option_dict["-HNoAts"]+" <:activ:896255701641474068>")"""
-        if "-HNoLv" in topics:
-            on_option.append(self.option_dict["-HNoLv"] + " <:activ:896255701641474068>")
-        """try:
-            await self.ModmailManager.connect_to_database(self.bot.db, ["modmail"])
-            channel = await self.ModmailManager.get_channel(ctx.guild)
-            on_option.append(f"문의 채널 - {channel.mention} <:activ:896255701641474068>")
-        except:
-            pass"""
+        if "-HOnLv" in topics:
+            on_option.append(self.option_dict["-HOnLv"] + " <:activ:896255701641474068>")
+        if "-HOnBdWld" in topics:
+            on_option.append(self.option_dict["-HOnBdWld"] + " <:activ:896255701641474068>")
         channels = ctx.guild.text_channels
         for channel in channels:
             if (
@@ -146,10 +109,10 @@ class General(commands.Cog):
                               components=[
                                   Select(placeholder="옵션",
                                          options=[
-                                             SelectOption(label="레벨링 무시",
-                                                          description="이 채널에 메세지로 경험치를 얻고 레벨업을 무시하는 모드입니다.",
+                                             SelectOption(label="레벨링",
+                                                          description="이 채널을 레벨링전용 채널로 설정해요.",
                                                           value="-HNoLv", emoji="🏆"),
-                                             SelectOption(label="환영인사", description="유저가 서버에 입장시 자동으로 인사하는 모드입니다.",
+                                             SelectOption(label="환영인사", description="유저가 서버에 입장시 자동으로 인사하는 채널로 설정해요.",
                                                           value="wlc", emoji="👋"),
                                              SelectOption(label="초대추적",
                                                           description="유저가 서버에 입장시 누구의 초대로 서버에 들어왔는지 확인할 수 있는 모드입니다.",
@@ -163,6 +126,9 @@ class General(commands.Cog):
                                              SelectOption(label="서버스텟",
                                                           description="서버스텟기능을 사용해요.",
                                                           value="serverstat", emoji="📊"),
+                                             SelectOption(label="욕설감지",
+                                                          description="이 채널을 욕설감지채널로 설정해요.",
+                                                          value="-HOnBdWld", emoji="🤬"),
                                              SelectOption(label="리셋",
                                                           description="적용되어있는 옵션을 리셋합니다.",
                                                           value="reset", emoji="🔄"),
@@ -218,7 +184,7 @@ class General(commands.Cog):
         if value == "reset":
             if ctx.channel.topic is not None:
                 topics = str(ctx.channel.topic).split(" ")
-                values = ["-HNoLv", "-HOnNt"]
+                values = ["-HOnLv", "-HOnNt","-HOnBdWld"]
                 for x in values:
                     try:
                         topics.remove(x)
@@ -252,7 +218,7 @@ class General(commands.Cog):
 
         if value == "cancel":
             await msg.delete()
-        if value == "-HNoLv" or value == "-HNoAts":
+        if value == "-HOnLv" or value == "-HNoAts" or value == "-HOnBdWld":
             try:
                 print(value)
                 if str(ctx.channel.topic).find(value) != -1:

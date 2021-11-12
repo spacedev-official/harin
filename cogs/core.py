@@ -1,9 +1,9 @@
 import random
 
+
 import discord
 from discord import errors
 from discord.ext import commands
-
 
 class Core(commands.Cog):
     def __init__(self, bot):
@@ -51,6 +51,8 @@ class Core(commands.Cog):
             description=f"{guild.name}({guild.id})에서 나감\n서버수 : {len(self.bot.guilds)}"
         )
         await self.bot.get_channel(896635424867495936).send(embed=em)
+
+
 
 
 def setup(bot):
