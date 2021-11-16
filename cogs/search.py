@@ -1,15 +1,19 @@
 import asyncio
 import datetime
 import os
+import random
+
+import aiohttp
 import aiosqlite
 import discord
+import laftel
 import neispy.error
 from discord.ext import commands
 from neispy import Neispy
 from discord_components import (
     Select,
     SelectOption,
-    Interaction
+    Interaction, Button
 )
 from Naver_Api.Api import Naver
 from dotenv import load_dotenv
@@ -546,6 +550,244 @@ class Search(commands.Cog):
             embed.add_field(name="바로가기", value=f"[자세한 내용 보러가기](<{str(link)}>)", inline=False)
             embed.set_footer(text=f'검색된 총갯수: {a["total"]}개')
         await ctx.send(embed=embed)
+
+    @commands.group(name="애니", invoke_without_command=True)
+    async def ani(self,ctx):
+        em = discord.Embed(
+            title="📋애니 기능 사용법",
+            colour=discord.Colour.random()
+        )
+        em.add_field(
+            name="ㅎ애니 검색 [제목]",
+            value="```입력한 제목으로 애니를 검색해요.```"
+        )
+        em.add_field(
+            name="ㅎ애니 추천",
+            value="```랜덤하게 애니를 추천해드려요.```"
+        )
+        em.add_field(
+            name="ㅎ애니 댓글달기 [댓글내용]",
+            value="```애니 검색 결과메세지를 답장하는 형태로 사용하여 해당 애니에 댓글을 남겨요.\n모든 댓글은 기록에 남고 부적절한 내용일시 즉시 삭제 및 사용금지조치됩니다.```"
+        )
+        em.add_field(
+            name="ㅎ애니 댓글수정 [수정할 댓글 내용]",
+            value="```애니 검색 결과메세지를 답장하는 형태로 사용하여 해당 애니에 남긴 댓글을 수정해요.\n모든 댓글은 기록에 남고 부적절한 내용일시 즉시 삭제 및 사용금지조치됩니다.```"
+        )
+        em.add_field(
+            name="ㅎ애니 댓글삭제",
+            value="```애니 검색 결과메세지를 답장하는 형태로 사용하여 해당 애니에 남긴 댓글을 삭제해요.\n모든 댓글은 기록에 남고 부적절한 내용일시 즉시 삭제 및 사용금지조치됩니다.```"
+        )
+        em.set_footer(text="라프텔api를 사용하여 검색됩니다.",icon_url="https://theme.zdassets.com/theme_assets/1696093/5109bde31eaa326750865af6c220ea865b16013b.png")
+        await ctx.reply(embed=em)
+
+    @ani.command(name="검색")
+    async def ani_search(self,ctx,*,name):
+        anis = await laftel.searchAnime(name)
+        titles = []
+        ani_data = {}
+        for anii in anis:
+            titles.append(anii.name)
+            ani_data[anii.name] = anii.id
+        msg = await ctx.send(
+            content=f"{ctx.author.mention}",
+            components=[
+                Select(placeholder="자세히 보고싶은 애니를 선택해주세요.",
+                       options=[
+                           SelectOption(
+                               label= i.name,
+                               value= str(i.id)
+                           ) for i in anis
+                       ]
+                       )
+            ]
+        )
+        try:
+            interaction:Interaction = await self.bot.wait_for(
+                "select_option", check=lambda inter: inter.user.id == ctx.author.id and inter.message.id == msg.id
+            )
+            value = int(interaction.values[0])
+        except asyncio.TimeoutError:
+            await msg.edit("시간이 초과되었어요!", components=[])
+            return
+        resp = await self.make_ani_embed(ani_id=value)
+        await interaction.message.edit(embed=resp['embed'],components=[Button(style=5,url=resp['url'],label=f"{resp['name']}보러가기")])
+
+    @ani.command(name="추천")
+    async def ani_recommand(self,ctx):
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url="https://laftel.net/api/home/v2/recommend/10/",headers={"laftel":"TeJava"}) as resp:
+                resp = await resp.json()
+                cache = []
+                cache_ani = []
+                for i in resp:
+                    for key, value in i.items():
+                        if key == "name":
+                           cache.append(value)
+                    for j in i['item_list']:
+                        cache_ani.append(j['id'])
+                resp_ = [random.choice(cache)]
+                resp_.append(random.choice(cache_ani))
+        resp = await self.make_ani_embed(ani_id=resp_[1])
+        await ctx.reply(content=f"랜덤 테마 `{resp_[0]}`에서 고른 애니!",embed=resp['embed'],components=[Button(style=5,url=resp['url'],label=f"'{resp['name']}' 보러가기")])
+
+
+
+
+    @staticmethod
+    async def make_ani_embed(ani_id):
+        datas = await laftel.getAnimeInfo(ani_id)
+        db = await aiosqlite.connect("db/db.sqlite")
+        cur = await db.execute("SELECT * FROM ani_comment WHERE ani_id = ?", (ani_id,))
+        resp = await cur.fetchall()
+        if datas.ended == True:
+            ended = "<a:check:893674152672776222> 완결"
+        else:
+            ended = "<a:cross:893675768880726017> 미완결"
+
+        if datas.awards != []:
+            awards = datas.awards
+        else:
+            awards = "<a:cross:893675768880726017> 정보 없음"
+
+        if datas.content_rating == "성인 이용가":
+            content_rating = "🔞 성인 이용가"
+        else:
+            content_rating = datas.content_rating
+
+        if datas.viewable == True:
+            viewable = "<a:check:893674152672776222> 시청가능"
+        else:
+            viewable = "<a:cross:893675768880726017> 시청불가"
+
+        genres = datas.genres
+        tags = datas.tags
+        air_year_quarter = f"`{datas.air_year_quarter}`"
+        if datas.air_day is None:
+            air_day = "<a:cross:893675768880726017> 정보가 없거나 방영종료입니다."
+        else:
+            air_day = f"`{datas.air_day}`"
+
+        avg_rating = "`" + str(datas.avg_rating)[:3] + "` 점"
+        view_all = f"`{int(datas.view_male) + int(datas.view_female)}` 회"
+        view_male = f"`{datas.view_male}` 명"
+        view_female = f"`{datas.view_female}` 명"
+
+        em = discord.Embed(title=f"{datas.name}", description=f"""
+[ 줄거리 ]
+`{datas.content}`
+
+[ 별점 ]
+{avg_rating}
+
+[ 방영 분기 ]
+{air_year_quarter}
+
+[ 방영일 ]
+{air_day}
+
+[ 조회수(남/여) ]
+{view_all}({view_male}/{view_female})
+
+        """)
+        em.add_field(name="라프텔 태그", value=", ".join(tags), inline=False)
+        em.add_field(name="애니 수상 목록", value=", ".join(awards) if type(awards) is list else awards, inline=False)
+        em.add_field(name="기본 태그", value=", ".join(genres), inline=False)
+        em.add_field(name="시청 가능 연령", value=content_rating, inline=False)
+        em.add_field(name="완결 여부", value=ended, inline=False)
+        em.add_field(name="라프텔 시청 가능 여부", value=viewable, inline=False)
+        print(resp)
+        if resp != []:
+            cache = [f"◎ {i[2]} • {i[3]}" for i in resp]
+            comment_ = "\n\n".join(cache)
+            em.add_field(name="댓글목록", value=f"```yml\n{comment_}\n```", inline=False)
+        if resp == []:
+            em.add_field(name="댓글목록", value="<a:cross:893675768880726017> 댓글 정보 없음", inline=False)
+        em.set_thumbnail(url=datas.image)
+        em.set_footer(text=str(datas.id),icon_url="https://theme.zdassets.com/theme_assets/1696093/5109bde31eaa326750865af6c220ea865b16013b.png")
+        return {"embed":em,"url":datas.url,"name":datas.name}
+
+    @ani.command(name="댓글달기")
+    async def ani_write_comment(self,ctx,*,comment):
+        if not ctx.message.reference:
+            return await ctx.reply("댓글달 애니 메시지의 답장으로 이 커맨드를 사용해주세요.")
+        msg_id = ctx.message.reference.message_id
+        ani_id = (await ctx.channel.fetch_message(msg_id)).embeds[0].footer.text
+        db = await aiosqlite.connect("db/db.sqlite")
+        cur = await db.execute("SELECT * FROM ani_comment WHERE user = ? AND ani_id = ?",(ctx.author.id,int(ani_id)))
+        resp = await cur.fetchone()
+        if resp is not None:
+            return await ctx.reply("이미 이 애니에 대한 댓글을 남기셨어요.")
+        await db.execute("INSERT INTO ani_comment(user, ani_id, comment) VALUES (?, ?, ?)",(ctx.author.id,int(ani_id),comment))
+        await db.commit()
+        log = discord.Embed(
+            title="write",
+            description=f"유저 - {ctx.author}\n내용 - {comment}"
+        )
+        log.set_footer(text=f"{ani_id} {ctx.author.id}",icon_url=ctx.author.avatar_url)
+        await self.bot.get_channel(909964077734969364).send(embed=log)
+        await ctx.reply("성공적으로 댓글을 달았어요.")
+
+    @ani.command(name="댓글수정")
+    async def ani_fix_comment(self, ctx, *, comment):
+        if not ctx.message.reference:
+            return await ctx.reply("댓글을 수정할 애니 메시지의 답장으로 이 커맨드를 사용해주세요.")
+        msg_id = ctx.message.reference.message_id
+        ani_id = (await ctx.channel.fetch_message(msg_id)).embeds[0].footer.text
+        db = await aiosqlite.connect("db/db.sqlite")
+        cur = await db.execute("SELECT * FROM ani_comment WHERE user = ? AND ani_id = ?", (ctx.author.id, int(ani_id)))
+        resp = await cur.fetchone()
+        if resp is None:
+            return await ctx.reply("이 애니에 대한 댓글을 남기지 않으셨어요.")
+        await db.execute("UPDATE ani_comment SET comment = ? WHERE user = ? AND ani_id = ?",(comment, ctx.author.id, int(ani_id)))
+        await db.commit()
+        log = discord.Embed(
+            title="fix",
+            description=f"유저 - {ctx.author}\n내용 - {comment}"
+        )
+        log.set_footer(text=f"{ani_id} {ctx.author.id}", icon_url=ctx.author.avatar_url)
+        await self.bot.get_channel(909964077734969364).send(embed=log)
+        await ctx.reply("성공적으로 댓글을 수정했어요.")
+
+    @ani.command(name="댓글삭제")
+    async def ani_delete_comment(self, ctx):
+        if not ctx.message.reference:
+            return await ctx.reply("댓글을 삭제할 애니 메시지의 답장으로 이 커맨드를 사용해주세요.")
+        msg_id = ctx.message.reference.message_id
+        ani_id = (await ctx.channel.fetch_message(msg_id)).embeds[0].footer.text
+        db = await aiosqlite.connect("db/db.sqlite")
+        cur = await db.execute("SELECT * FROM ani_comment WHERE user = ? AND ani_id = ?", (ctx.author.id, int(ani_id)))
+        resp = await cur.fetchone()
+        if resp is None:
+            return await ctx.reply("이 애니에 대한 댓글을 남기지 않으셨어요.")
+        await db.execute("DELETE FROM ani_comment WHERE user = ? AND ani_id = ?",(ctx.author.id, int(ani_id)))
+        await db.commit()
+        log = discord.Embed(
+            title="delete",
+            description=f"유저 - {ctx.author}"
+        )
+        log.set_footer(text=f"{ani_id} {ctx.author.id}", icon_url=ctx.author.avatar_url)
+        await self.bot.get_channel(909964077734969364).send(embed=log)
+        await ctx.reply("성공적으로 댓글을 삭제했어요.")
+
+    @ani.command(name="강제댓글삭제")
+    async def ani_owner_delete_comment(self, ctx):
+        if ctx.author.id != 281566165699002379:
+            return await ctx.reply("이 명령어를 사용할 권한이 없어요.")
+        if not ctx.message.reference:
+            return await ctx.reply("댓글을 삭제할 애니 메시지의 답장으로 이 커맨드를 사용해주세요.")
+        msg_id = ctx.message.reference.message_id
+        dbtxt = ((await ctx.channel.fetch_message(msg_id)).embeds[0].footer.text).split()
+        db = await aiosqlite.connect("db/db.sqlite")
+        cur = await db.execute("SELECT * FROM ani_comment WHERE user = ? AND ani_id = ?", (dbtxt[1], int(dbtxt[0])))
+        resp = await cur.fetchone()
+        if resp is None:
+            await ctx.message.delete()
+            return await ctx.send("이 애니에 대한 댓글이 존재하지않아요.",delete_after=5)
+        await db.execute("DELETE FROM ani_comment WHERE user = ? AND ani_id = ?",(dbtxt[1], int(dbtxt[0])))
+        await db.commit()
+        await (await ctx.channel.fetch_message(msg_id)).delete()
+        await ctx.message.delete()
+        await ctx.send("성공적으로 댓글을 삭제했어요.",delete_after=5)
 
 def setup(bot):
     bot.add_cog(Search(bot))

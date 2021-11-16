@@ -12,3 +12,17 @@
 + 옵션 선지 수정
   + 위 사항으로 인해 옵션의 선지변경 및 추가되었습니다.
 </details>
+<details>
+<summary>2021.11.16 | V.16.3702.7723</summary>
+
++ <img src="https://theme.zdassets.com/theme_assets/1696093/5109bde31eaa326750865af6c220ea865b16013b.png" width=18 align="center">애니 검색기능 추가
+  + 이제부터 애니 검색을 디스코드에서 하실 수 있어요.
+  + 감상한 애니에 대한 의견을 남기고 싶으신 분들을 위해 댓글도 다실 수 있어요. 
+    + 기본적으로는 댓글달 애니 임베드메세지를 답장하는 형태로 사용해야해요.
+    + ![사용법](https://media.discordapp.net/attachments/889514827905630290/909987772465565706/unknown.png?width=449&height=676)
+    + 모든 댓글은 기록에 남으니 악성 댓글은 무통보 삭제처리가 되니 조심해주세요.
+      + `ㅎ애니 댓글달기 [댓글내용]`
+      + `ㅎ애니 댓글수정 [수정할 내용]`
+      + `ㅎ애니 댓글삭제`
+  + 애니검색은 <img src="https://theme.zdassets.com/theme_assets/1696093/5109bde31eaa326750865af6c220ea865b16013b.png" width=18 align="center">[라프텔](https://laftel.net/) API를 사용합니다.
+</details>
