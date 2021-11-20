@@ -674,7 +674,7 @@ class Search(commands.Cog):
 
         em = discord.Embed(title=f"{datas.name}", description=f"""
 [ 줄거리 ]
-`{datas.content}`
+`{datas.content[:150]}...중략`
 
 [ 별점 ]
 {avg_rating}

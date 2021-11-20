@@ -21,7 +21,8 @@ class General(commands.Cog):
             "ivt": "초대추적",
             "-HOnNt": "공지수신",
             "-HOnBtd": "생일알림",
-            "-HOnBdWld": "욕설감지"
+            "-HOnBdWld": "욕설감지",
+            "-HOnSpCk":"맞춤법감지"
             # "-HNoAts":"안티스팸 무시"
         }
         self.option_dict_db = {
@@ -70,6 +71,8 @@ class General(commands.Cog):
             on_option.append(self.option_dict["-HOnLv"] + " <:activ:896255701641474068>")
         if "-HOnBdWld" in topics:
             on_option.append(self.option_dict["-HOnBdWld"] + " <:activ:896255701641474068>")
+        if "-HOnSpCk" in topics:
+            on_option.append(self.option_dict["-HOnSpCk"] + " <:activ:896255701641474068>")
         channels = ctx.guild.text_channels
         for channel in channels:
             if (
@@ -129,8 +132,11 @@ class General(commands.Cog):
                                              SelectOption(label="욕설감지",
                                                           description="이 채널을 욕설감지채널로 설정해요.",
                                                           value="-HOnBdWld", emoji="🤬"),
+                                             SelectOption(label="맞춤법감지",
+                                                          description="이 채널을 맞춤법감지채널로 설정해요.",
+                                                          value="-HOnSpCk", emoji="🤬"),
                                              SelectOption(label="리셋",
-                                                          description="적용되어있는 옵션을 리셋합니다.",
+                                                          description="적용되어있는 모든 옵션을 리셋합니다.",
                                                           value="reset", emoji="🔄"),
                                              SelectOption(label="취소",
                                                           description="명령어를 취소합니다.",
@@ -218,7 +224,7 @@ class General(commands.Cog):
 
         if value == "cancel":
             await msg.delete()
-        if value == "-HOnLv" or value == "-HNoAts" or value == "-HOnBdWld":
+        if value == "-HOnLv" or value == "-HNoAts" or value == "-HOnBdWld" or value == "-HOnSpCk":
             try:
                 print(value)
                 if str(ctx.channel.topic).find(value) != -1:

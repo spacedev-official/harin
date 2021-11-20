@@ -26,3 +26,9 @@
       + `ㅎ애니 댓글삭제`
   + 애니검색은 <img src="https://theme.zdassets.com/theme_assets/1696093/5109bde31eaa326750865af6c220ea865b16013b.png" width=18 align="center">[라프텔](https://laftel.net/) API를 사용합니다.
 </details>
+<details>
+<summary>2021.11.20 | V.16.3741.4199</summary>
+
++ 잡업데이트
+  + 잡다한 소스를 정리하였습니다.
+</details>

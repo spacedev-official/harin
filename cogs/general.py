@@ -160,6 +160,26 @@ class general(commands.Cog):
             value="```\n전체 옵션을 사용하지않으면 수신된 메일을 보여주고 사용하면 모든 메일을 볼 수 있어요!\n```",
             inline=False
         )
+        util.add_field(
+            name="하린아 애니검색 [애니제목]",
+            value="```\n애니를 검색해요.\n```",
+            inline=False
+        )
+        util.add_field(
+            name="하린아 애니 댓글달기 [댓글내용]",
+            value="```\n애니 검색결과 메세지에 답장형태로 사용하여 댓글을 남겨요. 부적절한 댓글은 무통보삭제가 되요.\n```",
+            inline=False
+        )
+        util.add_field(
+            name="하린아 애니 댓글수정 [댓글내용]",
+            value="```\n애니 검색결과 메세지에 답장형태로 사용하여 댓글을 수정해요. 부적절한 댓글은 무통보삭제가 되요.\n```",
+            inline=False
+        )
+        util.add_field(
+            name="하린아 애니 댓글삭제",
+            value="```\n애니 검색결과 메세지에 답장형태로 사용하여 남긴 댓글을 삭제해요. 부적절한 댓글은 무통보삭제가 되요.\n```",
+            inline=False
+        )
         util.set_footer(text=f"3 / 9페이지",icon_url=ctx.author.avatar_url)
 
         music = discord.Embed(

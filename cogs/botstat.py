@@ -1,7 +1,7 @@
 import asyncio
 import os
 import random
-
+import statcord
 import aiosqlite
 from dotenv import load_dotenv
 import discord
@@ -15,6 +15,8 @@ class botstat(commands.Cog):
         self.bot = bot
         self.krb = koreanbots.Koreanbots(api_key=os.getenv("KRB_TOKEN"))
         self._krb = discord.DiscordpyKoreanbots(client=self.bot,api_key=os.getenv("KRB_TOKEN"),run_task=True)
+        self.statcord = statcord.Client(self.bot, os.getenv("STATCORD"),custom1=self.custom1,custom2=self.custom2,logging_level='INFO')
+        self.statcord.start_loop()
 
     @commands.command(name="하트인증", aliases=["추천인증","추천","하트","ㅊㅊ"])
     async def heart_check(self,ctx):
@@ -45,7 +47,16 @@ class botstat(commands.Cog):
             return await msg.edit("> 추천이 확인되었어요! 추천해주셔서 감사해요!💕\n> " + badge_msg)
         await msg.edit("> 추천이 확인되지않았어요..😢 혹시 마음에 드시지않으신가요..?🥺")
 
+    @commands.Cog.listener()
+    async def on_command(self, ctx):
+        self.statcord.command_run(ctx)
 
+    async def custom1(self):
+        resp = (await self._krb.botinfo(self.bot.user.id)).votes
+        return str(resp)
+
+    async def custom2(self):
+        return str(len(self.bot.voice_clients))
 
 def setup(bot):
     bot.add_cog(botstat(bot))

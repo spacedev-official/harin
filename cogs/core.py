@@ -1,3 +1,4 @@
+import asyncio
 import random
 
 
@@ -8,6 +9,7 @@ from discord.ext import commands
 class Core(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.join = []
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
@@ -16,7 +18,7 @@ class Core(commands.Cog):
         await self.bot.change_presence(status=discord.Status.online,
                                        activity=discord.Activity(name="하린아 도움 | 서버: {}".format(len(self.bot.guilds)),
                                                                  type=discord.ActivityType.playing))
-        if guild.id == 653083797763522580 or guild.id == 786470326732587008:
+        if guild.id in [653083797763522580, 786470326732587008, 608711879858192479]:
             return
         em = discord.Embed(
             title="초대해줘서 고마워요!",
@@ -52,6 +54,28 @@ class Core(commands.Cog):
         )
         await self.bot.get_channel(896635424867495936).send(embed=em)
 
+    """@commands.Cog.listener("on_member_join")
+    async def joinout_log_in(self, member):
+        if member.id not in self.join:
+            self.join.append(member.id)
+            await asyncio.sleep(60*10)
+            self.join.remove(member.id)
+
+    @commands.Cog.listener("on_member_remove")
+    async def joinout_log_out(self, member):
+        if member.id in self.join:
+            em = discord.Embed(title="들낙로그", description=f"`{member}` | `{member.id}`\n들낙하여 밴처리되었습니다.",
+                               colour=discord.Colour.red())
+            await member.ban()
+            try:
+                await member.guild.system_channel.send(embed=em)
+            except:
+                em = discord.Embed(title=f"들낙로그 - {member.guild.name}", description=f"`{member}` | `{member.id}`\n들낙하여 밴처리되었습니다.",
+                                   colour=discord.Colour.red())
+                await member.guild.owner.send(embed=em)
+            ban = discord.Embed(title="들낙으로 인한 밴안내",
+                                description=f"안녕하세요.\n들낙방지 설정이 되어있는 `{member.guild.name}`에서 들낙행위를 하여 밴처리되었습니다.\n자세한 사항은 길드 오너에게 문의하세요.")
+            await member.send(embed=ban)"""
 
 
 

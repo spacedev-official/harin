@@ -41,7 +41,7 @@ class Manage(commands.Cog,discordSuperUtils.CogManager.Cog):
         return discordSuperUtils.generate_embeds(
             [
                 f"**사유: **{await infraction.reason()}\n"
-                f"**처리ID: **{infraction.infraction_id}\n"
+                f"**처리ID: **{infraction.id}\n"
                 f"**처벌일자: **{await infraction.datetime()}"
                 for infraction in member_infractions
             ],
