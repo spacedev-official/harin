@@ -239,6 +239,76 @@ class Manage(commands.Cog,discordSuperUtils.CogManager.Cog):
                 em.add_field(name="판독 소요시간",value=res['time'])
                 await message.channel.send(embed=em)
 
+    @commands.group(name="태그", invoke_without_command=True)
+    async def tags(self,ctx, mode=None):
+        db = await aiosqlite.connect("db/db.sqlite")
+        if mode == None:
+            cur = await db.execute("SELECT * FROM tags WHERE guild = ?", (ctx.guild.id,))
+            res = await cur.fetchall()
+            if not res == []:
+                titles = [i[1] for i in res]
+                title = ", ".join(titles)
+                return await ctx.reply(f"```{title}```")
+            return await ctx.reply("등록된 태그가 하나도 없어요")
+        else:
+            cur = await db.execute("SELECT * FROM tags WHERE guild = ? AND title = ?", (ctx.guild.id,mode))
+            res = await cur.fetchone()
+            if not res == None:
+                return await ctx.reply(res[2])
+            return await ctx.reply("입력한 태그가 존재하지 않아요.")
+
+    @tags.command(name="등록")
+    @commands.has_permissions(administrator=True)
+    async def add_tags(self,ctx,*,values:str):
+        db = await aiosqlite.connect("db/db.sqlite")
+        try:
+            splits = values.split(',')
+            title=splits[0]
+            desc = splits[1]
+            cur = await db.execute("SELECT * FROM tags WHERE guild = ? AND title = ?", (ctx.guild.id,title))
+            res = await cur.fetchone()
+            if res !=None:
+                await db.execute("UPDATE tags SET desc = ? WHERE guild = ? AND title = ?",(desc,ctx.guild.id,title))
+                await db.commit()
+                return await ctx.reply("같은 태그의 값이 존재하여 자동으로 업데이트되었어요.")
+            await db.execute("INSERT INTO tags(guild, title, desc) VALUES (?, ?, ?)",(ctx.guild.id, title, desc))
+            await db.commit()
+            return await ctx.reply("성공적으로 태그를 등록하였어요.")
+        except:
+            return await ctx.reply("올바른 입력값이 아닌것같아요. 제목과 설명을 구분하기위한 쉼표가 꼭! 있어야해요.\n올바른 사용예시: `ㅎ태그 등록 제목,설명`")
+
+    @tags.command(name="수정")
+    @commands.has_permissions(administrator=True)
+    async def edit_tags(self, ctx, *, values: str):
+        db = await aiosqlite.connect("db/db.sqlite")
+        try:
+            splits = values.split(',')
+            title = splits[0]
+            desc = splits[1]
+            cur = await db.execute("SELECT * FROM tags WHERE guild = ? AND title = ?", (ctx.guild.id, title))
+            res = await cur.fetchone()
+            if res == None:
+                await db.execute("INSERT INTO tags(guild, title, desc) VALUES (?, ?, ?)", (ctx.guild.id, title, desc))
+                await db.commit()
+                return await ctx.reply("입력한 태그의 값이 없어 자동으로 등록하였어요.")
+            await db.execute("UPDATE tags SET desc = ? WHERE guild = ? AND title = ?", (desc, ctx.guild.id, title))
+            await db.commit()
+            return await ctx.reply("성공적으로 업데이트되었어요.")
+        except:
+            return await ctx.reply("올바른 입력값이 아닌것같아요. 제목과 설명을 구분하기위한 쉼표가 꼭! 있어야해요.\n올바른 사용예시: `ㅎ태그 수정 제목,설명`")
+
+    @tags.command(name="삭제")
+    @commands.has_permissions(administrator=True)
+    async def del_tags(self, ctx, title: str):
+        db = await aiosqlite.connect("db/db.sqlite")
+        cur = await db.execute("SELECT * FROM tags WHERE guild = ? AND title = ?", (ctx.guild.id, title))
+        res = await cur.fetchone()
+        if res != None:
+            await db.execute("DELETE FROM tags WHERE guild = ? AND title = ?", (ctx.guild.id, title))
+            await db.commit()
+            return await ctx.reply("성공적으로 태그가 삭제되었어요.")
+        return await ctx.reply("입력한 제목의 태그가 존재하지않아요.")
+
     """@commands.group(name="출퇴", invoke_without_command=True)
     async def chulgeun(self,ctx):
         await ctx.send("관리자의 출퇴근 상태를 알려주는 기능입니다.")

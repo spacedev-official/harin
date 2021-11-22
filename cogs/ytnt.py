@@ -218,7 +218,6 @@ class ytnt(commands.Cog):
         db = await aiosqlite.connect("db/db.sqlite")
         api = pyyoutube.Api(api_key=os.getenv("YT_TOKEN"))
         while not self.bot.is_closed():
-            await asyncio.sleep(5)
             twitch_cur = await db.execute("SELECT * FROM youtube")
             datas = await twitch_cur.fetchall()
             for i in datas:
@@ -266,7 +265,8 @@ class ytnt(commands.Cog):
                         self.youtube_cache[i[3]] = resp[0].id
                 except:
                     self.youtube_cache[i[3]] = resp[0].id
-
+                await asyncio.sleep(30)
+            await asyncio.sleep(60)
 
 def setup(bot):
     bot.add_cog(ytnt(bot))
