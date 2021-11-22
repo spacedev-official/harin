@@ -37,6 +37,7 @@ class general(commands.Cog):
 • 6페이지 - 학교검색 🏫
 • 7페이지 - 출석체크 📅
 • 8페이지 - 템플릿 🧩
+• 9페이지 - 방송 <:streaming:911928055197478912>
 
 [하린봇 초대](https://discord.com/api/oauth2/authorize?client_id=893841721958469703&permissions=8&scope=bot)
 [서포트서버](https://discord.gg/Jk6VRvsnqa)
@@ -380,6 +381,43 @@ class general(commands.Cog):
         )
         template.set_footer(text="8 / 9페이지",icon_url=ctx.author.avatar_url)
 
+        broadcast = discord.Embed(
+            title="방송 <:streaming:911928055197478912>",
+            description="트위치/유튜브 알림과 검색에 관련한 명령어를 확인해보세요.\n트위치/유튜브 알림 채널은 무료플랜은 1개, 프리미엄플랜은 5개까지 등록가능합니다.",
+            colour=discord.Colour.random()
+        )
+        broadcast.add_field(
+            name="하린아 트위치",
+            value="```\n트위치 스트리밍 알림 서비스에 등록된 채널 목록을 보여드려요.\n```",
+            inline=False
+        )
+        broadcast.add_field(
+            name="하린아 트위치 등록 @알림역할 #알림채널 [유저ID]",
+            value="```\n트위치 스트리밍 알림 서비스에 등록해요.\n```",
+            inline=False
+        )
+        broadcast.add_field(
+            name="하린아 트위치 해제",
+            value="```\n트위치 스트리밍 알림 서비스에서 해제해요.\n```",
+            inline=False
+        )
+        broadcast.add_field(
+            name="하린아 유튜브 [채널이름]",
+            value="```\n입력한 채널이름으로 검색해요.\n```",
+            inline=False
+        )
+        broadcast.add_field(
+            name="하린아 유튜브 등록 @알림역할 #알림채널 [채널ID]",
+            value="```\n유튜브 업로드 알림 서비스에 등록해요.\n```",
+            inline=False
+        )
+        broadcast.add_field(
+            name="하린아 유튜브 해제",
+            value="```\n유튜브 업로드 알림 서비스에서 해제해요.\n```",
+            inline=False
+        )
+        broadcast.set_footer(text="9 / 9페이지", icon_url=ctx.author.avatar_url)
+
         """game = discord.Embed(
             title="게임 🎮",
             description="게임과 관련한 명령어를 확인해보세요.\n게임플레이를 하게된다면 __유저명이 공개되는것에 동의__하게 됩니다.\n끝말잇기는 끝봇의 [오픈소스](https://github.com/janu8ry/kkutbot)를 사용하였습니다.\n마피아는 다음의 [오픈소스](https://github.com/frin0911/Mafia-Bot)를 사용하였습니다.",
@@ -402,16 +440,17 @@ class general(commands.Cog):
         )
         game.set_footer(text="9 / 9페이지", icon_url=ctx.author.avatar_url)"""
 
-        embeds = [main,manage,util,music,birthday,school,chulcheck,template]
+        embeds = [main,manage,util,music,birthday,school,chulcheck,template,broadcast]
         desc = {
             "메인 페이지": "목차가 있는 메인페이지",
-            "서버 관리": "서버 관리 명령어가 있는 페이지.",
-            "도구":"간편히 사용할 수 있는 명령어가 있는 페이지.",
-            "뮤직":"노래 명령어가 있는 페이지.",
-            "생일": "생일 명령어가 있는 페이지.",
-            "학교검색": "학교검색 명령어가 있는 페이지.",
-            "출석체크": "출석체크 명령어가 있는 페이지.",
-            "템플릿":"템플릿 명령어가 있는 페이지."
+            "⚖서버 관리": "서버 관리 명령어가 있는 페이지.",
+            "🧰도구":"간편히 사용할 수 있는 명령어가 있는 페이지.",
+            "🎶뮤직":"노래 명령어가 있는 페이지.",
+            "🎉생일": "생일 명령어가 있는 페이지.",
+            "🏫학교검색": "학교검색 명령어가 있는 페이지.",
+            "📅출석체크": "출석체크 명령어가 있는 페이지.",
+            "🧩템플릿":"템플릿 명령어가 있는 페이지.",
+            "📡방송":"트위치/유튜브 관련 명령어가 있는 페이지."
         }
         e = Paginator(
             client=self.bot.components_manager,

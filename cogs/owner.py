@@ -1,5 +1,11 @@
 import random
+import time
+import uuid
+from datetime import datetime
 
+import discordSuperUtils
+from PycordPaginator import Paginator
+from dateutil.relativedelta import relativedelta
 import aiosqlite
 import discord
 from discord.ext import commands
@@ -126,6 +132,88 @@ class Owner(commands.Cog):
 
         await database.commit()
         await ctx.send('성공적으로 메일을 발송하였습니다.')
+
+    @commands.group(name="프리미엄", invoke_without_command=True)
+    async def premium(self,ctx):
+        db = await aiosqlite.connect("db/db.sqlite")
+        conn = await db.execute("SELECT * FROM premium WHERE guild = ?",(ctx.guild.id,))
+        resp = await conn.fetchone()
+        em = discord.Embed(
+            title=f"{ctx.guild.name}의 프리미엄 상태",
+            colour=discord.Colour.random()
+        )
+        em.add_field(name="맞춤법 감지 무제한",value="맞춤법 감지제한이 500회였다면 이젠 무제한으로 잘못된 맞춤법을 감지해보세요!",inline=False)
+        em.add_field(name="욕설 감지 무제한",value="욕설 감지제한이 1,000회였다면 이젠 무제한으로 욕설을 감지해보세요!",inline=False)
+        em.add_field(name="트위치 채널 등록가능 개수 1 -> 5개", value="트위치 방송알림을 받기위해 등록하는 채널 개수 제한이 1개에서 5개로 늘어납니다!\n다양한 스트리머를 등록해 방송알림을 받아보세요!", inline=False)
+        if resp == None:
+            em.add_field(name="프리미엄 상태",value="<a:cross:893675768880726017>프리미엄을 이용중인 서버가 아니거나 만료된 상태에요..😥\n자세한 사항은 제 DM으로 `하린아 문의 [문의내용]`으로 문의해주세요.")
+        else:
+            #endtime = str(time.mktime(datetime.strptime(resp[2], '%Y-%m-%d %H:%M:%S').timetuple()))[:-2]
+            em.add_field(name="프리미엄 상태", value=f"<:supporter_badge:904937799701110814>만료일: <t:{resp[3]}>(<t:{resp[3]}:R>)")
+        await ctx.reply(embed=em)
+
+    @premium.command(name="등록")
+    @commands.is_owner()
+    async def add_premium(self,ctx,guild_id:int,year: int, month: int, day: int):
+        code = uuid.uuid4()
+        db = await aiosqlite.connect("db/db.sqlite")
+        conn = await db.execute("SELECT * FROM premium WHERE guild = ?", (guild_id,))
+        resp = await conn.fetchone()
+        if resp == None:
+            ending = datetime.now() + relativedelta(years=int(year), months=int(month), days=int(day))
+            ending = ending.strftime('%Y/%m/%d %H:%M:%S')
+            endtime = str(time.mktime(datetime.strptime(ending, '%Y/%m/%d %H:%M:%S').timetuple()))[:-2]
+            await db.execute("INSERT INTO premium(guild, code, end_time, end_timestamp) VALUES (?, ?, ?, ?)",
+                             (guild_id, str(code), str(ending), endtime))
+            await db.commit()
+            return await ctx.reply("✅")
+        return await ctx.reply("이미 사용중이에요.")
+
+    @premium.command(name="삭제")
+    @commands.is_owner()
+    async def del_premium(self, ctx, code: str):
+        db = await aiosqlite.connect("db/db.sqlite")
+        conn = await db.execute("SELECT * FROM premium WHERE code = ?", (code,))
+        resp = await conn.fetchone()
+        if resp == None:
+            return await ctx.reply("사용중인 길드가 아니에요.")
+        await db.execute("DELETE FROM premium WHERE code = ?",(code,))
+        await db.commit()
+        return await ctx.reply("✅")
+
+    @premium.command(name="조회")
+    @commands.is_owner()
+    async def getinfo_premium(self, ctx, code: str = None):
+        db = await aiosqlite.connect("db/db.sqlite")
+        if code == None:
+            conn = await db.execute("SELECT * FROM premium")
+            resp = await conn.fetchall()
+            formatted_leaderboard = [
+                f"길드(ID): {self.bot.get_guild(x[0])}({x[0]})\n코드: {x[1]}\n만료일: <t:{x[3]}>(<t:{x[3]}:R>)" for x in resp
+            ]
+
+            e = Paginator(
+                client=self.bot.components_manager,
+                embeds=discordSuperUtils.generate_embeds(
+                    formatted_leaderboard,
+                    title="프리미엄 리스트",
+                    fields=15,
+                    description=f"오너전용 프리미엄 정보 리스트",
+                ),
+                channel=ctx.channel,
+                only=ctx.author,
+                ctx=ctx,
+                use_select=False)
+            await e.start()
+        else:
+            conn = await db.execute("SELECT * FROM premium WHERE code = ?",(code,))
+            resp = await conn.fetchone()
+            em = discord.Embed(
+                title=f"{self.bot.get_guild(resp[0])}({resp[0]})의 프리미엄 상태",
+                description=f"코드: {resp[1]}\n프리미엄 만료일: <t:{resp[3]}>(<t:{resp[3]}:R>)",
+                colour=discord.Colour.random()
+            )
+            return await ctx.reply(embed=em)
 
 
 def setup(bot):

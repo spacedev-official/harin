@@ -38,7 +38,7 @@ class MyBot(commands.Bot):
 
 
 INTENTS = discord.Intents.all()
-my_bot = MyBot(command_prefix=["하린아 ","하린아","ㅎ","ㅎ "], intents=INTENTS)
+my_bot = MyBot(command_prefix=commands.when_mentioned_or("하린아 ","하린아","ㅎ","ㅎ ","g"), intents=INTENTS)
 DiscordComponents(my_bot)
 if __name__ == "__main__":
     my_bot.loop.run_until_complete(MyBot.create_db_con())
