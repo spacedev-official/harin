@@ -1,3 +1,6 @@
+# ⚠Noice 
+# This repository has been archived by V2 developing. check this [V2 repo](https://github.com/spacedev-official/harin-v2)
+
 <h1 align="center">🤖harin-bot</h1>
 <p align="center">
     <a href="https://koreanbots.dev/bots/893841721958469703" target="_blank"><img src="https://koreanbots.dev/api/widget/bots/status/893841721958469703.svg?scale=1.0"></a>
